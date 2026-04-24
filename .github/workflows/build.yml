@@ -1,0 +1,81 @@
+name: Build Windows EXE
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    # ---------- NODE.JS ----------
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install UI dependencies
+      run: |
+        cd ui
+        npm install
+
+    - name: Build UI
+      run: |
+        cd ui
+        npm run build
+
+    # ---------- PYTHON ----------
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install Python dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    # ---------- BUILD UI.B64 ----------
+    - name: Generate ui.b64
+      run: python build_ui.py
+
+    # ---------- BUILD EXE ----------
+    - name: Build EXE
+      run: |
+        pyinstaller --onefile --hidden-import=engineio.async_drivers.aiohttp app/main.py
+
+    # ---------- RENAME ----------
+    - name: Rename EXE
+      run: |
+        mkdir output
+        move dist\main.exe output\metube.exe
+
+    # ---------- SUBIR ARTEFACTO ----------
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: metube-exe
+        path: output/metube.exe
+
+    # ---------- CREAR RELEASE AUTOMÁTICA (DRAFT) ----------
+    - name: Create Draft Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ github.ref_name }}
+        name: Metube ${{ github.ref_name }}
+        body: |
+          Metube with yt-dlp updated.
+          Build created automatically with GitHub Actions.
+        draft: false
+        prerelease: true
+        files: output/metube.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

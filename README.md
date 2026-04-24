@@ -1,9 +1,9 @@
-# Metube desktop edition III
+# Metube desktop edition
 Windows adapted Metube, with `yt-dlp` version `2026.3.17`
 
 ## Dependencies
 
-Make sure you have `Node.js` and `Python = 3.11` installed.
+Make sure you have `Node.js` and `Python >= 3.11` installed.
 
 ```bash
 # Install python dependencies
@@ -31,4 +31,5 @@ pyinstaller --onefile --hidden-import=engineio.async_drivers.aiohttp app/main.py
 ### Development notes
 
  The above works on Windows and macOS as well as Linux.
+ 
  FFMPEG is required to be installed on the system.

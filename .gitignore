@@ -1,3 +1,11 @@
+# Output of local Apps
+app/zip_intefaz_web.py
+ui.b64
+main.spec
+build/*
+dist/*
+
+
 # compiled output
 /ui/dist
 /ui/tmp

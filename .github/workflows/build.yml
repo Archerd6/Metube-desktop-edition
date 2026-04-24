@@ -94,6 +94,9 @@ jobs:
     - name: Display structure of downloaded files
       run: ls -R output
 
+    - name: Debug files before release
+      run: find output -type f
+
     # ---------- CREAR RELEASE AUTOMÁTICA (DRAFT) ----------
     - name: Create Draft Release
       uses: softprops/action-gh-release@v2
@@ -106,8 +109,8 @@ jobs:
         draft: false
         prerelease: true
         files: |
-          output/metube-windows/metube.exe
-          output/metube-linux/metube
-          output/metube-macos/metube
+          output/metube-windows/*
+          output/metube-linux/*
+          output/metube-macos/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

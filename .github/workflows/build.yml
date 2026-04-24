@@ -1,4 +1,4 @@
-name: Build Windows EXE
+name: Build for Windows, Linux and macOS
 
 on:
   push:
@@ -10,7 +10,28 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: metube-windows
+            executable: metube.exe
+            build_cmd: |
+              move dist\main.exe output\metube.exe
+          - os: ubuntu-latest
+            artifact_name: metube-linux
+            executable: metube
+            build_cmd: |
+              mv dist/main output/metube
+              chmod +x output/metube
+          - os: macos-latest
+            artifact_name: metube-macos
+            executable: metube
+            build_cmd: |
+              mv dist/main output/metube
+              chmod +x output/metube
 
     steps:
     - name: Checkout repo
@@ -47,23 +68,31 @@ jobs:
     - name: Generate ui.b64
       run: python build_ui.py
 
-    # ---------- BUILD EXE ----------
-    - name: Build EXE
+    # ---------- BUILD EXECUTABLE ----------
+    - name: Build executable
       run: |
         pyinstaller --onefile --hidden-import=engineio.async_drivers.aiohttp app/main.py
-
-    # ---------- RENAME ----------
-    - name: Rename EXE
-      run: |
         mkdir output
-        move dist\main.exe output\metube.exe
+        ${{ matrix.build_cmd }}
 
-    # ---------- SUBIR ARTEFACTO ----------
+    # ---------- SUBIR Resultado ----------
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: metube-exe
-        path: output/metube.exe
+        name: ${{ matrix.artifact_name }}
+        path: output/${{ matrix.executable }}
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: output
+
+    - name: Display structure of downloaded files
+      run: ls -R output
 
     # ---------- CREAR RELEASE AUTOMÁTICA (DRAFT) ----------
     - name: Create Draft Release
@@ -76,6 +105,9 @@ jobs:
           Build created automatically with GitHub Actions.
         draft: false
         prerelease: true
-        files: output/metube.exe
+        files: |
+          output/metube-windows/metube.exe
+          output/metube-linux/metube
+          output/metube-macos/metube
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

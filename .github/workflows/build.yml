@@ -16,22 +16,24 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            artifact_name: metube-windows
-            executable: metube.exe
+            artifact_name: metube-windows-x64
+            executable: metube-windows-x64.exe
             build_cmd: |
-              move dist\main.exe output\metube.exe
+              move dist\main.exe output\metube-windows-x64.exe
+
           - os: ubuntu-latest
-            artifact_name: metube-linux
-            executable: metube
+            artifact_name: metube-linux-x64
+            executable: metube-linux-x64
             build_cmd: |
-              mv dist/main output/metube
-              chmod +x output/metube
+              mv dist/main output/metube-linux-x64
+              chmod +x output/metube-linux-x64
+
           - os: macos-latest
-            artifact_name: metube-macos
-            executable: metube
+            artifact_name: metube-macos-x64
+            executable: metube-macos-x64
             build_cmd: |
-              mv dist/main output/metube
-              chmod +x output/metube
+              mv dist/main output/metube-macos-x64
+              chmod +x output/metube-macos-x64
 
     steps:
     - name: Checkout repo
@@ -109,8 +111,8 @@ jobs:
         draft: false
         prerelease: true
         files: |
-          output/metube-windows/*
-          output/metube-linux/*
-          output/metube-macos/*
+          output/metube-windows-x64/*
+          output/metube-linux-x64/*
+          output/metube-macos-x64/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

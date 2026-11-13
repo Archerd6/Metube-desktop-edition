@@ -18,5 +18,5 @@ python-socketio==5.13.0
 simple-websocket==1.1.0
 wsproto==1.2.0
 yarl==1.20.1
-yt-dlp>=2026.8.19
+yt-dlp>=2026.10.26
 watchfiles==1.1.1
